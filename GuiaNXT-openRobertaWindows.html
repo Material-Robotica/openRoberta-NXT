@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LEGO NXT + Open Roberta en Windows 11</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+ 
+  :root{
+    --bg: #191a23;
+    --panel: #22232f;
+    --panel-2: #262838;
+    --border: #34364a;
+    --text: #e7e7ee;
+    --muted: #9497ab;
+    --amber: #f2a154;
+    --amber-soft: rgba(242,161,84,.12);
+    --green: #7bd88f;
+    --green-soft: rgba(123,216,143,.12);
+    --blue: #7aa2f7;
+    --blue-soft: rgba(122,162,247,.12);
+    --red: #f7768e;
+    --red-soft: rgba(247,118,142,.12);
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+ 
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height:1.55;
+    padding: 48px 20px 80px;
+  }
+  .wrap{ max-width: 780px; margin: 0 auto; }
+ 
+  header{ margin-bottom: 40px; }
+  .eyebrow{
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--amber);
+    display:flex; align-items:center; gap:10px; margin-bottom: 14px;
+  }
+  .eyebrow::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background: var(--amber); box-shadow: 0 0 0 4px var(--amber-soft);
+  }
+  h1{
+    font-family: var(--mono); font-weight:800;
+    font-size: clamp(26px, 4vw, 34px); line-height:1.15;
+    margin: 0 0 10px; letter-spacing: -0.01em;
+  }
+  h1 span{ color: var(--amber); }
+  .subtitle{ color: var(--muted); font-size: 15px; max-width: 60ch; }
+ 
+  .section-title{
+    font-family: var(--mono); font-size: 12px; letter-spacing:.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 36px 0 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+ 
+  .step{
+    position: relative; display:grid; grid-template-columns: 56px 1fr;
+    gap: 18px; padding-bottom: 34px;
+  }
+  .step:not(:last-child)::before{
+    content:""; position:absolute; left:27px; top:56px; bottom:0; width:2px;
+    background: linear-gradient(var(--border), transparent);
+  }
+  .num{
+    width:56px; height:56px; border-radius:14px;
+    background: var(--panel); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--mono); font-weight:700; font-size:18px; color: var(--amber);
+  }
+  .content{ padding-top:6px; min-width:0; }
+  .content h2{ font-family: var(--mono); font-size: 16px; font-weight:700; margin: 0 0 8px; }
+  .content p{ margin: 0 0 12px; color: var(--muted); font-size: 14.5px; }
+  .content ul, .content ol{ margin: 0 0 12px; padding-left: 20px; color: var(--muted); font-size: 14.5px; }
+  .content li{ margin-bottom: 4px; }
+  strong{ color: var(--text); }
+  a{ color: var(--blue); word-break: break-all; }
+ 
+  code{
+    font-family: var(--mono); background: var(--panel-2);
+    padding: 2px 6px; border-radius: 5px; font-size: 13px; color: var(--green);
+  }
+ 
+  .term{
+    background: #14151d; border: 1px solid var(--border);
+    border-radius: 10px; overflow:hidden; margin: 10px 0;
+  }
+  .term-bar{
+    display:flex; gap:6px; padding: 9px 12px;
+    background: var(--panel-2); border-bottom: 1px solid var(--border);
+  }
+  .term-bar span{ width:9px; height:9px; border-radius:50%; background: #4b4d63; }
+  .term pre{
+    margin:0; padding: 14px 16px; font-family: var(--mono);
+    font-size: 13px; color: var(--green); overflow-x:auto; white-space: pre;
+  }
+  .term pre .comment{ color: var(--muted); }
+ 
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family: var(--mono); font-size: 11px; font-weight:600; letter-spacing:.04em;
+    padding: 3px 9px; border-radius:999px; margin-bottom:10px;
+  }
+  .badge.ok{ background: var(--green-soft); color: var(--green); }
+  .badge.opt{ background: var(--blue-soft); color: var(--blue); }
+  .badge.warn{ background: var(--amber-soft); color: var(--amber); }
+  .badge.no{ background: var(--red-soft); color: var(--red); }
+ 
+  .panel{
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; margin-top: 10px;
+  }
+  .panel + .panel{ margin-top: 12px; }
+  .panel-title{ font-family: var(--mono); font-size: 13px; font-weight:700; margin: 0 0 8px; color: var(--text); }
+  .panel p:last-child{ margin-bottom:0; }
+ 
+  .table-wrap{ overflow-x:auto; margin: 0 0 8px; }
+  table{ width:100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td{ text-align:left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th{ font-family: var(--mono); font-size: 12px; color: var(--amber); font-weight:700; }
+  td{ color: var(--muted); }
+  td:first-child{ color: var(--text); font-weight:600; white-space: nowrap; }
+ 
+  .note{
+    border-radius: 12px; padding: 16px 18px;
+    background: var(--amber-soft); border: 1px solid rgba(242,161,84,.35);
+    margin-top: 18px;
+  }
+  .note h2{ font-family: var(--mono); font-size: 15px; margin: 0 0 8px; }
+  .note p, .note li{ color: var(--muted); font-size: 14px; }
+  .note p{ margin: 0 0 10px; }
+  .note ul{ padding-left: 20px; margin: 0 0 10px; }
+ 
+  footer{
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
+    color: var(--muted); font-family: var(--mono); font-size: 12px; text-align:center;
+  }
+ 
+  @media print{
+    body{ background:#fff; color:#111; padding: 24px; }
+    .num, .panel{ background:#fff; }
+    .term{ background:#f5f5f5; }
+    .term-bar{ background:#eee; }
+    .term pre{ color:#111; }
+    code{ background:#eee; color:#111; }
+    .content p, .content li, td, .note p, .note li, .subtitle{ color:#333; }
+    strong, .content h2, td:first-child{ color:#111; }
+    .note{ background:#fff8ef; }
+    .step{ break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+ 
+  <header>
+    <div class="eyebrow">Robótica · LEGO Mindstorms NXT · Windows 11</div>
+    <h1>NXT + <span>Open Roberta Lab</span></h1>
+    <p class="subtitle">Registro del proceso para conectar un ladrillo LEGO NXT a Open Roberta Lab por USB en Windows 11: programa puente, driver Fantom y firmware.</p>
+  </header>
+ 
+  <div class="section-title">Antes de empezar</div>
+ 
+  <div class="panel">
+    <p class="panel-title">Qué cambia respecto del EV3</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>EV3 leJOS</th><th>NXT</th></tr>
+        <tr><td>Programa puente</td><td>Open Roberta Connector</td><td>Programa aparte, solo para NXT</td></tr>
+        <tr><td>Java</td><td>JRE portátil del kit (64 bits)</td><td>Java de 32 bits</td></tr>
+        <tr><td>Driver de Windows</td><td><code>.inf</code> del kit (RNDIS)</td><td>Driver USB de LEGO: <strong>Fantom</strong></td></tr>
+        <tr><td>Firmware</td><td>leJOS en la microSD</td><td><strong>Firmware estándar de LEGO</strong> grabado en el ladrillo</td></tr>
+      </table>
+    </div>
+  </div>
+ 
+  <div class="panel">
+    <span class="badge no">✕ leJOS NO SIRVE</span>
+    <p class="panel-title" style="margin-top:0">Firmware del NXT</p>
+    <p>Open Roberta convierte los bloques del NXT a <strong>NXC</strong>, que corre sobre el firmware estándar de LEGO. Un NXT con leJOS no ejecuta esos programas. A diferencia del EV3, el NXT tiene un solo firmware a la vez: o leJOS o el de LEGO.</p>
+    <p>Decisión tomada: los ladrillos con leJOS quedan para Java; para Open Roberta se usan ladrillos con el firmware original de LEGO (Mindstorms). El cambio es reversible en ambos sentidos.</p>
+  </div>
+ 
+  <div class="section-title">Programa puente de Open Roberta</div>
+ 
+  <div class="step">
+    <div class="num">01</div>
+    <div class="content">
+      <h2>Descargar el programa USB para NXT</h2>
+      <p>Se descarga del repositorio oficial de Open Roberta en GitHub:</p>
+      <p><a href="https://github.com/OpenRoberta/robertalab-usbprogram-nxt/releases">github.com/OpenRoberta/robertalab-usbprogram-nxt/releases</a></p>
+      <p>Archivo: <code>OpenRobertaUSBNXTSetupEN-1.0.0.msi</code> (versión de 2018).</p>
+      <div class="panel">
+        <span class="badge warn">⚠ AVISO DE EDGE</span>
+        <p>Edge muestra "no se descarga habitualmente" y no termina la descarga. Para conservar el archivo:</p>
+        <ol>
+          <li>Abrir el panel de descargas (<code>Ctrl + J</code>).</li>
+          <li>En la fila del archivo, tocar los tres puntos <strong>⋯</strong> → <strong>Conservar</strong>.</li>
+          <li>Si aparece otro aviso: <strong>Mostrar más</strong> → <strong>Conservar de todos modos</strong>.</li>
+        </ol>
+        <p>"Notificar este archivo como seguro" no desbloquea la descarga: solo envía un reporte a Microsoft.</p>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">02</div>
+    <div class="content">
+      <h2>Instalar el programa</h2>
+      <p>Doble clic en el <code>.msi</code>. Si aparece "Windows protegió su PC", tocar <strong>Más información</strong> → <strong>Ejecutar de todos modos</strong>. Completar el instalador con <strong>Next</strong>.</p>
+      <span class="badge ok">✓ HECHO</span>
+    </div>
+  </div>
+ 
+  <div class="section-title">Driver Fantom de LEGO</div>
+ 
+  <div class="step">
+    <div class="num">03</div>
+    <div class="content">
+      <h2>Comprobar si Windows reconoce el NXT</h2>
+      <p>Con el NXT encendido y conectado por USB, abrir el <strong>Administrador de dispositivos</strong> (clic derecho en Inicio).</p>
+      <ul>
+        <li>Si aparece <strong>LEGO MINDSTORMS NXT</strong>: el driver ya está, pasar al paso 08.</li>
+        <li>Si aparece <strong>Dispositivo desconocido</strong> en <strong>Otros dispositivos</strong>: falta el driver.</li>
+      </ul>
+      <p>Para confirmar que el dispositivo desconocido es el NXT: clic derecho → <strong>Propiedades</strong> → <strong>Detalles</strong> → <strong>Ruta de acceso a la instancia del dispositivo</strong>. El NXT se identifica con <code>VID_0694&amp;PID_0002</code>.</p>
+      <p>Alternativa desde PowerShell, que busca cualquier dispositivo LEGO conectado:</p>
+      <div class="term">
+        <div class="term-bar"><span></span><span></span><span></span></div>
+        <pre>Get-PnpDevice -PresentOnly | Where-Object InstanceId -like '*VID_0694*' | Select-Object FriendlyName, Class, Status</pre>
+      </div>
+      <ul>
+        <li>Sin resultados: Windows no ve el NXT (revisar cable, puerto y que el ladrillo esté encendido).</li>
+        <li>Status <code>Error</code> o <code>Unknown</code>: falta el driver Fantom.</li>
+        <li>Status <code>OK</code>: el driver está instalado.</li>
+      </ul>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">04</div>
+    <div class="content">
+      <h2>Descargar el driver Fantom 1.20</h2>
+      <p>LEGO ya no publica el driver del NXT. Se obtiene desde Softpedia:</p>
+      <p><a href="https://drivers.softpedia.com/get/Other-DRIVERS-TOOLS/Others/LEGO-Mindstorms-NXT-Fantom-Driver-102.shtml">drivers.softpedia.com — LEGO Mindstorms NXT Fantom Driver</a></p>
+      <p>En la página de descarga, hacer clic en <strong>Softpedia Secure Download (US)</strong>. No usar botones grandes de "Download" en otras partes de la página: son publicidad.</p>
+      <p>Archivo correcto: <code>NXT Fantom Drivers v120.zip</code>, unos 9,7 MB. Si se descarga un <code>.exe</code> u otro nombre, no abrirlo.</p>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">05</div>
+    <div class="content">
+      <h2>Corregir el setup.ini</h2>
+      <p>El instalador falla en Windows de 64 bits porque <code>setup.ini</code> apunta a un archivo que no existe.</p>
+      <ol>
+        <li>Descomprimir el zip.</li>
+        <li>Abrir con el Bloc de notas: <code>NXT Fantom Drivers\Windows\1.2\1.2.0\setup.ini</code></li>
+        <li>Buscar la sección <code>[LegoMindstormsNXTdriver64Supp.msi]</code> y cambiar la línea <code>Path=</code> que está debajo.</li>
+        <li>Guardar.</li>
+      </ol>
+      <div class="term">
+        <div class="term-bar"><span></span><span></span><span></span></div>
+        <pre>[LegoMindstormsNXTdriver64Supp.msi]
+Path=Products\LEGO_NXT_Driver_64\NXT_D02\LegoMindstormsNXTdriver64.msi</pre>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">06</div>
+    <div class="content">
+      <h2>Ejecutar setup.exe desde una terminal de administrador</h2>
+      <p>Al abrir <code>setup.exe</code> con doble clic, Windows lo bloquea: "Esta aplicación se bloqueó como medida de seguridad", con <strong>Editor: Desconocido</strong>. La causa es que el instalador es de 2011 y su firma digital ya no es válida.</p>
+      <p>Solución: clic derecho en Inicio → <strong>Terminal (Administrador)</strong> y ejecutar:</p>
+      <div class="term">
+        <div class="term-bar"><span></span><span></span><span></span></div>
+        <pre><span class="comment"># Ir a la carpeta del instalador</span>
+cd "$env:USERPROFILE\Downloads\NXT Fantom Drivers v120\NXT Fantom Drivers\Windows\1.2\1.2.0"
+ 
+<span class="comment"># Quitar la marca de "descargado de Internet"</span>
+Get-ChildItem -Recurse | Unblock-File
+ 
+<span class="comment"># Abrir el instalador</span>
+.\setup.exe</pre>
+      </div>
+      <div class="panel">
+        <span class="badge opt">PLAN B</span>
+        <p class="panel-title" style="margin-top:0">Si setup.exe sigue bloqueado</p>
+        <p>Instalar los dos paquetes directamente, en la misma terminal y carpeta. Se necesitan ambos: el programa de Open Roberta usa Java de 32 bits.</p>
+        <div class="term">
+          <div class="term-bar"><span></span><span></span><span></span></div>
+          <pre>msiexec /i "Products\LEGO_NXT_Driver_32\NXT_D01\LegoMindstormsNXTdriver32.msi"
+msiexec /i "Products\LEGO_NXT_Driver_64\NXT_D02\LegoMindstormsNXTdriver64.msi"</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">07</div>
+    <div class="content">
+      <h2>Elegir los componentes</h2>
+      <ul>
+        <li><strong>LEGO MINDSTORMS NXT x64 Driver</strong>: dejarlo como está (se instala).</li>
+        <li><strong>LEGO MINDSTORMS NXT x64 Driver Support</strong>: desplegar el menú y elegir <strong>Do not install this feature</strong> (queda con una ✕ roja).</li>
+      </ul>
+      <p>Completar el instalador con las opciones por defecto.</p>
+    </div>
+  </div>
+ 
+  <div class="step">
+    <div class="num">08</div>
+    <div class="content">
+      <h2>Verificar el driver</h2>
+      <p>Desconectar el NXT, esperar unos segundos y volver a conectarlo encendido. En el Administrador de dispositivos, el "Dispositivo desconocido" pasa a <strong>LEGO MINDSTORMS NXT</strong>.</p>
+      <p>Si sigue como desconocido: clic derecho → <strong>Actualizar controlador</strong> → <strong>Buscar automáticamente</strong>.</p>
+      <span class="badge ok">✓ FUNCIONÓ</span>
+    </div>
+  </div>
+ 
+  <div class="section-title">Conexión con el Lab</div>
+ 
+  <div class="step">
+    <div class="num">09</div>
+    <div class="content">
+      <h2>Conectar con Open Roberta Lab</h2>
+      <span class="badge warn">PENDIENTE DE PROBAR · NXT CON FIRMWARE LEGO</span>
+      <ol>
+        <li>Con el NXT encendido y conectado, abrir desde el menú Inicio el programa de Open Roberta para NXT.</li>
+        <li>Tocar <strong>Connect</strong>. El programa muestra un código.</li>
+        <li>En <a href="https://lab.open-roberta.org">lab.open-roberta.org</a>, elegir la tarjeta <strong>NXT</strong>.</li>
+        <li>Ir a <strong>robot ▾ → connect…</strong> y pegar el código.</li>
+      </ol>
+    </div>
+  </div>
+ 
+  <div class="note">
+    <span class="badge warn">⚠ SI ALGO FALLA</span>
+    <h2>Problemas posibles en el último paso</h2>
+    <ul>
+      <li><strong>El programa no abre o se cierra enseguida:</strong> probablemente falta un <strong>JRE 8 de 32 bits (x86)</strong>, disponible en Adoptium.</li>
+      <li><strong>El programa abre pero no encuentra el NXT:</strong> revisar en el Administrador de dispositivos que siga como LEGO MINDSTORMS NXT y que el ladrillo no tenga leJOS.</li>
+      <li><strong>El NXT tiene leJOS y se quiere pasar a LEGO:</strong> poner el ladrillo en modo actualización (apretar el botón de reset del agujerito trasero unos 4 segundos, hasta escuchar un "tic tic") y grabar el firmware <code>LEGO MINDSTORMS NXT v1.31</code> (<code>.rfw</code>) con BricxCC → <strong>Tools → Download Firmware</strong>.</li>
+    </ul>
+  </div>
+ 
+  <footer>Prof. Elizabeth Izquierdo · material-robotica · Octubre 2026</footer>
+ 
+</div>
+</body>
+</html>
+ 
